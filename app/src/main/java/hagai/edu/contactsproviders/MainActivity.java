@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-        ContactsDataSource.getContacts(this /*context*/);
+        ContactsDataSource.getContacts(this  /*context*/);
 
     }
 
