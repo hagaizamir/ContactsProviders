@@ -3,10 +3,12 @@ package hagai.edu.contactsproviders;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import hagai.edu.contactsproviders.models.Contact;
 
@@ -17,17 +19,37 @@ import hagai.edu.contactsproviders.models.Contact;
 
 public class ContactsDataSource {
 
+    public interface OnContactsArrivedListener{
+        void onContactsArrived(List<Contact> data);
+    }
 
-    public static void getContacts(Context context) {
+    public static void  getContactsAsync(final Context context, final OnContactsArrivedListener listener){
+        new AsyncTask<Void, Void, List<Contact>>() {
+
+            //do in background thread...
+            @Override
+            protected List<Contact> doInBackground(Void... v) {
+                return getContacts(context);
+            }
+
+            //report the result from the UI Thread.
+            @Override
+            protected void onPostExecute(List<Contact> contacts) {
+                listener.onContactsArrived(contacts);
+            }
+        }.execute();
+    }
+
+    private static ArrayList<Contact> getContacts(Context context) {
         //id, displayName
         Uri contactUri = ContactsContract.Contacts.CONTENT_URI;
         ArrayList<Contact> contacts = new ArrayList<>();
 
         Cursor cursor = context.getContentResolver().query(contactUri, null, null, null, null);
         if (cursor == null || !cursor.moveToFirst()) {
-            //TODO: notify listener - No result
-            return;
+            return contacts;
         }
+
         do {
             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -39,10 +61,10 @@ public class ContactsDataSource {
             contacts.add(contact);
         } while (cursor.moveToNext());
         cursor.close();
-        System.out.println(contacts);
+        return contacts;
     }
 
-    public static ArrayList<String> getPhones(Context context, String id) {
+    private static ArrayList<String> getPhones(Context context, String id) {
         //goto Phones table-> aquire the phones.
         //URI
         Uri phonesUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
@@ -78,7 +100,8 @@ public class ContactsDataSource {
 
         return new ArrayList<String>(phones);
     }
-    public static ArrayList<String> getEmails(Context context, String id) {
+
+    private static ArrayList<String> getEmails(Context context, String id) {
         Uri uri = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
         String colEmail = ContactsContract.CommonDataKinds.Email.DATA;
         String colContactID = ContactsContract.CommonDataKinds.Email.CONTACT_ID;

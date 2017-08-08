@@ -6,39 +6,41 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * Created by Hagai Zamir on 04-Aug-17.
+ * Model class for storing contact data
  */
 
 public class Contact implements Parcelable {
-    private  String name;
-    private List <String> emails;
-    private  List<String> phones;
+    private String name;
+    private List<String> phones;
+    private List<String> emails;
 
-    public Contact(String name, List<String> emails, List<String> phones) {
+    public Contact(String name, List<String> phones, List<String> emails) {
         this.name = name;
-        this.emails = emails;
         this.phones = phones;
-    }
-
-    @Override
-    public String toString() {
-        return "Contact{" +
-                "name='" + name + '\'' +
-                ", emails=" + emails +
-                ", phones=" + phones +
-                '}';
+        this.emails = emails;
     }
 
     public String getName() {
         return name;
     }
 
+    public List<String> getPhones() {
+        return phones;
+    }
+
     public List<String> getEmails() {
         return emails;
     }
 
-    public List<String> getPhones() {
-        return phones;
+
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "name='" + name + '\'' +
+                ", phones=" + phones +
+                ", emails=" + emails +
+                '}';
     }
 
     @Override
@@ -49,14 +51,14 @@ public class Contact implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
-        dest.writeStringList(this.emails);
         dest.writeStringList(this.phones);
+        dest.writeStringList(this.emails);
     }
 
     protected Contact(Parcel in) {
         this.name = in.readString();
-        this.emails = in.createStringArrayList();
         this.phones = in.createStringArrayList();
+        this.emails = in.createStringArrayList();
     }
 
     public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
